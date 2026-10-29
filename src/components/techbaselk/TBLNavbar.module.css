@@ -1,0 +1,202 @@
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 18px 0;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: 1px solid transparent;
+  box-shadow: none;
+  transition: background 0.35s ease, backdrop-filter 0.35s ease, -webkit-backdrop-filter 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, padding 0.3s ease;
+}
+
+/* Glass effect with neon lights when scrolled */
+.navScrolled {
+  padding: 14px 0;
+  background: rgba(3, 4, 8, 0.72);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border-bottom: 1px solid rgba(158, 251, 254, 0.22);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.75),
+    0 1px 0 rgba(158, 251, 254, 0.25),
+    0 4px 20px rgba(158, 251, 254, 0.08);
+}
+
+.navInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 1.2rem;
+  text-decoration: none;
+}
+
+.logoIcon {
+  color: var(--tbl-neon);
+  font-size: 1.6rem;
+  text-shadow:
+    0 0 10px rgba(158, 251, 254, 0.9),
+    0 0 20px rgba(158, 251, 254, 0.5);
+  animation: logoPulse 3s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { text-shadow: 0 0 10px rgba(158, 251, 254, 0.9), 0 0 20px rgba(158, 251, 254, 0.5); }
+  50% { text-shadow: 0 0 20px rgba(158, 251, 254, 1), 0 0 40px rgba(158, 251, 254, 0.7), 0 0 60px rgba(158, 251, 254, 0.3); }
+}
+
+.logoText {
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 2px;
+  color: var(--tbl-white);
+  text-transform: uppercase;
+  font-size: 1rem;
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navLink {
+  position: relative;
+  color: var(--tbl-gray);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 8px 14px 10px 14px;
+  border-radius: 4px;
+  transition: var(--transition);
+  text-decoration: none;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.navLink:hover {
+  color: var(--tbl-white);
+  background: rgba(158, 251, 254, 0.05);
+}
+
+.navLinkActive {
+  color: var(--tbl-neon) !important;
+  background: rgba(158, 251, 254, 0.08) !important;
+  font-weight: 700;
+}
+
+/* Glowing neon underline on clicked / active buttons */
+.activeBar {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 2px;
+  background: var(--tbl-neon);
+  border-radius: 2px;
+  box-shadow:
+    0 0 8px rgba(158, 251, 254, 0.9),
+    0 0 16px rgba(158, 251, 254, 0.5);
+}
+
+.navIdlLink {
+  margin-left: 12px;
+  color: var(--tbl-neon);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border: 1px solid var(--tbl-border);
+  border-radius: 4px;
+  transition: var(--transition);
+  text-decoration: none;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 1px;
+}
+
+.navIdlLink:hover {
+  background: var(--tbl-neon-faint);
+  border-color: var(--tbl-neon-dim);
+  box-shadow: 0 0 15px rgba(158, 251, 254, 0.2);
+}
+
+.menuToggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.hamburgerLine {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--tbl-gray);
+  border-radius: 2px;
+  transition: var(--transition);
+}
+
+.hamburgerLineTop {
+  transform: rotate(45deg) translate(5px, 5px);
+  background: var(--tbl-neon) !important;
+}
+
+.hamburgerLineMid {
+  opacity: 0;
+}
+
+.hamburgerLineBot {
+  transform: rotate(-45deg) translate(5px, -5px);
+  background: var(--tbl-neon) !important;
+}
+
+@media (max-width: 900px) {
+  .menuToggle {
+    display: flex;
+  }
+
+  .navLinks {
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.97);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    transform: translateX(100%);
+    transition: var(--transition-slow);
+    backdrop-filter: blur(20px);
+  }
+
+  .navLinksOpen {
+    transform: translateX(0);
+  }
+
+  .navLink {
+    font-size: 1.2rem;
+    padding: 12px 24px;
+  }
+
+  .navIdlLink {
+    margin-left: 0;
+    font-size: 1rem;
+  }
+}

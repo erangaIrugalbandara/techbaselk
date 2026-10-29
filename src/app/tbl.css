@@ -1,0 +1,246 @@
+/* ===== TECH BASE LK — NEON BLACK THEME ===== */
+
+/* Force dark background on TBL pages */
+.tbl-root {
+  background: var(--tbl-bg);
+  min-height: 100vh;
+  font-family: 'Inter', 'Orbitron', sans-serif;
+  color: var(--tbl-white);
+}
+
+.tbl-main {
+  padding-top: 72px;
+}
+
+/* ===== NEON GLOW TEXT ===== */
+.tbl-neon-text {
+  color: var(--tbl-neon);
+  text-shadow:
+    0 0 10px rgba(158, 251, 254, 0.8),
+    0 0 20px rgba(158, 251, 254, 0.5),
+    0 0 40px rgba(158, 251, 254, 0.3);
+}
+
+/* ===== SCANLINES EFFECT ===== */
+.tbl-scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+}
+
+/* ===== FOOTER ===== */
+.tbl-footer {
+  background: var(--tbl-bg-2);
+  border-top: 1px solid var(--tbl-border);
+  padding: 60px 0 30px;
+}
+
+.tbl-footer-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.tbl-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.tbl-logo-icon {
+  color: var(--tbl-neon);
+  text-shadow: 0 0 15px rgba(158, 251, 254, 0.8);
+  font-size: 1.6rem;
+}
+
+.tbl-logo-text {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: white;
+}
+
+.tbl-footer-tagline {
+  color: var(--tbl-gray);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.tbl-footer-links {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tbl-footer-links a {
+  color: var(--tbl-gray);
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+
+.tbl-footer-links a:hover {
+  color: var(--tbl-neon);
+  text-shadow: 0 0 8px rgba(158, 251, 254, 0.5);
+}
+
+.tbl-footer-bottom {
+  border-top: 1px solid var(--tbl-border);
+  padding-top: 24px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.tbl-footer-idl-link {
+  color: var(--tbl-neon);
+  transition: var(--transition);
+}
+
+.tbl-footer-idl-link:hover {
+  text-shadow: 0 0 8px rgba(158, 251, 254, 0.5);
+}
+
+/* ===== SHARED TBL SECTION STYLES ===== */
+.tbl-section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--tbl-neon-dim);
+  color: var(--tbl-neon);
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  background: var(--tbl-neon-faint);
+}
+
+.tbl-section-title {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 900;
+  color: var(--tbl-white);
+  margin-bottom: 16px;
+  line-height: 1.15;
+}
+
+.tbl-section-title .tbl-neon-word {
+  color: var(--tbl-neon);
+  text-shadow:
+    0 0 10px rgba(158, 251, 254, 0.6),
+    0 0 30px rgba(158, 251, 254, 0.3);
+}
+
+.tbl-section-desc {
+  font-size: 1.1rem;
+  color: var(--tbl-gray);
+  line-height: 1.7;
+}
+
+/* ===== NEON BUTTON ===== */
+.tbl-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  color: var(--tbl-neon);
+  border: 1px solid var(--tbl-neon);
+  padding: 14px 32px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.tbl-btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--tbl-neon);
+  transform: translateX(-100%);
+  transition: var(--transition);
+  z-index: 0;
+}
+
+.tbl-btn-primary:hover::before {
+  transform: translateX(0);
+}
+
+.tbl-btn-primary:hover {
+  color: black;
+  box-shadow: 0 0 30px rgba(158, 251, 254, 0.4);
+}
+
+.tbl-btn-primary > * {
+  position: relative;
+  z-index: 1;
+}
+
+.tbl-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  color: var(--tbl-gray);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 14px 32px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.tbl-btn-secondary:hover {
+  color: white;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ===== NEON CARD ===== */
+.tbl-card {
+  background: var(--tbl-bg-2);
+  border: 1px solid var(--tbl-border);
+  border-radius: 8px;
+  transition: var(--transition);
+  overflow: hidden;
+}
+
+.tbl-card:hover {
+  border-color: var(--tbl-neon-dim);
+  box-shadow: 0 0 30px rgba(158, 251, 254, 0.08), 0 20px 40px rgba(0, 0, 0, 0.5);
+  transform: translateY(-4px);
+}
+
+@media (max-width: 768px) {
+  .tbl-footer-bottom {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+  .tbl-footer-links {
+    gap: 20px;
+  }
+}
