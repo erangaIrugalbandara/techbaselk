@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 import styles from './page.module.css';
 
 type Category = { id: string; name: string; slug: string };
@@ -14,7 +15,12 @@ type Prompt = {
   category_slug: string | null;
 };
 
+// Number of prompts visible in full preview to guests before requiring free registration
+const GUEST_PREVIEW_LIMIT = 3;
+
 export default function PromptsPage() {
+  const { user, profile, openAuthModal } = useAuth();
+
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -22,6 +28,7 @@ export default function PromptsPage() {
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [copyWarning, setCopyWarning] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -57,7 +64,16 @@ export default function PromptsPage() {
     fetchData();
   }, [fetchData]);
 
-  const handleCopy = (text: string, id: string) => {
+  const handleCopy = (text: string, id: string, index: number) => {
+    // If not logged in, block copy and open auth modal
+    if (!user) {
+      setCopyWarning('Please sign in or create a free account to copy prompts.');
+      openAuthModal('signin', 'Sign in for free to copy prompts and access the full master prompt library.');
+      setTimeout(() => setCopyWarning(null), 3500);
+      return;
+    }
+
+    // Authenticated user can copy freely
     navigator.clipboard.writeText(text);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
@@ -72,8 +88,18 @@ export default function PromptsPage() {
     return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
+  const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+
   return (
     <div className={styles.page}>
+      {/* Toast Notice for copy attempt when not logged in */}
+      {copyWarning && (
+        <div className={styles.copyNotice} role="status">
+          <span>🔒</span>
+          <span>{copyWarning}</span>
+        </div>
+      )}
+
       {/* ===== PAGE HEADER ===== */}
       <div className={styles.pageHeader}>
         <div className={styles.pageHeaderBg}>
@@ -81,12 +107,12 @@ export default function PromptsPage() {
           <div className={styles.headerGlow}></div>
         </div>
         <div className={`${styles.pageHeaderContent} container`}>
-          <div className="tbl-section-badge">Free Access</div>
+          <div className="tbl-section-badge">Master Collection</div>
           <h1 className={styles.pageTitle}>
             Master <span className="tbl-neon-word">Prompt</span> Library
           </h1>
           <p className={styles.pageDesc}>
-            Professional AI prompts curated for creators, marketers, and AI enthusiasts. Copy and use instantly — 100% free.
+            Professional AI prompts curated for creators, marketers, and AI enthusiasts. Instant copy & 1-click usage.
           </p>
         </div>
       </div>
@@ -133,6 +159,36 @@ export default function PromptsPage() {
       {/* ===== PROMPTS GRID ===== */}
       <div className={styles.promptsSection}>
         <div className="container">
+          {/* Access Banner */}
+          {!user ? (
+            <div className={styles.guestBanner}>
+              <div className={styles.guestBannerLeft}>
+                <div className={styles.guestBannerIcon}>⚡</div>
+                <div>
+                  <div className={styles.guestBannerTitle}>
+                    Guest Preview Active ({GUEST_PREVIEW_LIMIT} Free Previews)
+                  </div>
+                  <div className={styles.guestBannerDesc}>
+                    Sign in with Google or Email for free to unlock clipboard copying and browse all 100+ master prompts.
+                  </div>
+                </div>
+              </div>
+              <button
+                className={styles.guestBannerBtn}
+                onClick={() => openAuthModal('signup', 'Create a free account to unlock all prompts and instant copy.')}
+              >
+                Sign In / Sign Up Free →
+              </button>
+            </div>
+          ) : (
+            <div className={styles.userWelcomeBanner}>
+              <span>✓</span>
+              <span>
+                <strong>Full Access Unlocked:</strong> Welcome, {displayName}! You can freely browse and copy any prompt in the library.
+              </span>
+            </div>
+          )}
+
           {/* Count */}
           <div className={styles.promptsCount}>
             <span className={styles.countNum}>{prompts.length}</span>
@@ -152,90 +208,129 @@ export default function PromptsPage() {
             </div>
           ) : (
             <div className={styles.promptsGrid}>
-              {prompts.map((prompt, i) => (
-                <div
-                  key={prompt.id}
-                  className={`${styles.promptCard} tbl-card`}
-                  id={`prompt-card-${prompt.id}`}
-                  style={{ animationDelay: `${i * 0.05}s` }}
-                >
-                  {/* Card Header */}
-                  <div className={styles.cardHeader}>
-                    <div className={styles.cardMeta}>
-                      {prompt.category_name && (
-                        <span className={styles.cardCategory}>{prompt.category_name}</span>
-                      )}
-                      <span className={styles.cardDate} suppressHydrationWarning>{formatDate(prompt.created_at)}</span>
+              {prompts.map((prompt, i) => {
+                const isLocked = !user && i >= GUEST_PREVIEW_LIMIT;
+
+                return (
+                  <div
+                    key={prompt.id}
+                    className={`${styles.promptCard} tbl-card`}
+                    id={`prompt-card-${prompt.id}`}
+                    style={{ animationDelay: `${i * 0.05}s` }}
+                  >
+                    {/* Card Header */}
+                    <div className={styles.cardHeader}>
+                      <div className={styles.cardMeta}>
+                        {prompt.category_name && (
+                          <span className={styles.cardCategory}>{prompt.category_name}</span>
+                        )}
+                        <span className={styles.cardDate} suppressHydrationWarning>
+                          {formatDate(prompt.created_at)}
+                        </span>
+                      </div>
+                      <div className={styles.cardTopGlow}></div>
                     </div>
-                    <div className={styles.cardTopGlow}></div>
-                  </div>
 
-                  {/* Title */}
-                  <h3 className={styles.cardTitle}>{prompt.title}</h3>
+                    {/* Title */}
+                    <h3 className={styles.cardTitle}>{prompt.title}</h3>
 
-                  {/* Prompt Text Preview */}
-                  <div className={`${styles.promptTextWrapper} ${expandedId === prompt.id ? styles.promptTextExpanded : ''}`}>
-                    <p className={styles.promptText}>{prompt.prompt_text}</p>
-                  </div>
-
-                  {/* Expand/Collapse if long */}
-                  {prompt.prompt_text.length > 200 && (
-                    <button
-                      className={styles.expandBtn}
-                      onClick={() => setExpandedId(expandedId === prompt.id ? null : prompt.id)}
+                    {/* Prompt Text / Locked View */}
+                    <div
+                      className={`${styles.promptTextWrapper} ${
+                        expandedId === prompt.id && !isLocked ? styles.promptTextExpanded : ''
+                      }`}
                     >
-                      {expandedId === prompt.id ? '▲ Show less' : '▼ Read full prompt'}
-                    </button>
-                  )}
-
-                  {/* YouTube Video */}
-                  {prompt.youtube_url && getYouTubeId(prompt.youtube_url) && (
-                    <div className={styles.videoWrapper}>
-                      <iframe
-                        className={styles.videoFrame}
-                        src={`https://www.youtube.com/embed/${getYouTubeId(prompt.youtube_url)}`}
-                        title={`Preview: ${prompt.title}`}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        loading="lazy"
-                      />
-                    </div>
-                  )}
-
-                  {/* Action Bar */}
-                  <div className={styles.cardActions}>
-                    <button
-                      id={`copy-btn-${prompt.id}`}
-                      className={`${styles.copyBtn} ${copiedId === prompt.id ? styles.copyBtnSuccess : ''}`}
-                      onClick={() => handleCopy(prompt.prompt_text, prompt.id)}
-                    >
-                      {copiedId === prompt.id ? (
-                        <>
-                          <span>✓</span>
-                          <span>Copied!</span>
-                        </>
+                      {isLocked ? (
+                        <div className={styles.lockedWrapper}>
+                          <p className={`${styles.promptText} ${styles.promptTextBlurred}`}>
+                            {prompt.prompt_text.slice(0, 160)}...
+                          </p>
+                          <div className={styles.lockedOverlay}>
+                            <span className={styles.lockedBadge}>🔒 Member Access Only</span>
+                            <button
+                              type="button"
+                              className={styles.unlockBtn}
+                              onClick={() =>
+                                openAuthModal(
+                                  'signin',
+                                  'Sign in for free to unlock this prompt and view its full content.'
+                                )
+                              }
+                            >
+                              Unlock Prompt Free →
+                            </button>
+                          </div>
+                        </div>
                       ) : (
-                        <>
-                          <span>📋</span>
-                          <span>Copy Prompt</span>
-                        </>
+                        <p className={styles.promptText}>{prompt.prompt_text}</p>
                       )}
-                    </button>
-                    {prompt.youtube_url && (
-                      <a
-                        href={prompt.youtube_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.ytBtn}
-                        id={`yt-btn-${prompt.id}`}
+                    </div>
+
+                    {/* Expand/Collapse if long and not locked */}
+                    {!isLocked && prompt.prompt_text.length > 200 && (
+                      <button
+                        className={styles.expandBtn}
+                        onClick={() => setExpandedId(expandedId === prompt.id ? null : prompt.id)}
                       >
-                        <span>▶</span>
-                        <span>Watch Preview</span>
-                      </a>
+                        {expandedId === prompt.id ? '▲ Show less' : '▼ Read full prompt'}
+                      </button>
                     )}
+
+                    {/* YouTube Video (if available) */}
+                    {prompt.youtube_url && getYouTubeId(prompt.youtube_url) && (
+                      <div className={styles.videoWrapper}>
+                        <iframe
+                          className={styles.videoFrame}
+                          src={`https://www.youtube.com/embed/${getYouTubeId(prompt.youtube_url)}`}
+                          title={`Preview: ${prompt.title}`}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
+
+                    {/* Action Bar */}
+                    <div className={styles.cardActions}>
+                      <button
+                        id={`copy-btn-${prompt.id}`}
+                        className={`${styles.copyBtn} ${copiedId === prompt.id ? styles.copyBtnSuccess : ''}`}
+                        onClick={() => handleCopy(prompt.prompt_text, prompt.id, i)}
+                      >
+                        {copiedId === prompt.id ? (
+                          <>
+                            <span>✓</span>
+                            <span>Copied!</span>
+                          </>
+                        ) : !user ? (
+                          <>
+                            <span>🔒</span>
+                            <span>Copy (Sign In)</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>📋</span>
+                            <span>Copy Prompt</span>
+                          </>
+                        )}
+                      </button>
+
+                      {prompt.youtube_url && (
+                        <a
+                          href={prompt.youtube_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.ytBtn}
+                          id={`yt-btn-${prompt.id}`}
+                        >
+                          <span>▶</span>
+                          <span>Watch Preview</span>
+                        </a>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

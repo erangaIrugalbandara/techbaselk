@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import TBLNavbar from '@/components/techbaselk/TBLNavbar';
+import Providers from '@/components/providers/Providers';
 import './globals.css';
 import './tbl.css';
 
@@ -20,30 +21,32 @@ export default function TBLLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <div className="tbl-root">
-          <TBLNavbar />
-          <main className="tbl-main">{children}</main>
-          <footer className="tbl-footer">
-            <div className="tbl-footer-inner container">
-              <div className="tbl-footer-brand">
-                <span className="tbl-logo-icon">◈</span>
-                <span className="tbl-logo-text">Tech Base LK</span>
+        <Providers>
+          <div className="tbl-root">
+            <TBLNavbar />
+            <main className="tbl-main">{children}</main>
+            <footer className="tbl-footer">
+              <div className="tbl-footer-inner container">
+                <div className="tbl-footer-brand">
+                  <span className="tbl-logo-icon">◈</span>
+                  <span className="tbl-logo-text">Tech Base LK</span>
+                </div>
+                <p className="tbl-footer-tagline">Empowering creators with AI knowledge & master prompts.</p>
+                <div className="tbl-footer-links">
+                  <a href="/">Home</a>
+                  <a href="/prompts">Prompt Library</a>
+                  <a href="/classes">Classes</a>
+                  <a href="/products">Products</a>
+                  <a href="/about">About</a>
+                </div>
+                <div className="tbl-footer-bottom">
+                  <span>© 2024 Tech Base LK. All rights reserved.</span>
+                  <span>A brand under <a href="/" className="tbl-footer-idl-link">Ideolabz</a></span>
+                </div>
               </div>
-              <p className="tbl-footer-tagline">Empowering creators with AI knowledge & master prompts.</p>
-              <div className="tbl-footer-links">
-                <a href="/">Home</a>
-                <a href="/prompts">Prompt Library</a>
-                <a href="/classes">Classes</a>
-                <a href="/products">Products</a>
-                <a href="/about">About</a>
-              </div>
-              <div className="tbl-footer-bottom">
-                <span>© 2024 Tech Base LK. All rights reserved.</span>
-                <span>A brand under <a href="/" className="tbl-footer-idl-link">Ideolabz</a></span>
-              </div>
-            </div>
-          </footer>
-        </div>
+            </footer>
+          </div>
+        </Providers>
       </body>
     </html>
   );
