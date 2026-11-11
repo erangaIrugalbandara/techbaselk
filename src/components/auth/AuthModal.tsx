@@ -32,6 +32,25 @@ export default function AuthModal() {
     }
   }, [isAuthModalOpen, authModalMode]);
 
+  // Lock background body scrolling when modal is open
+  useEffect(() => {
+    if (isAuthModalOpen) {
+      const originalOverflow = document.body.style.overflow;
+      const originalPaddingRight = document.body.style.paddingRight;
+      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+      document.body.style.overflow = 'hidden';
+      if (scrollBarWidth > 0) {
+        document.body.style.paddingRight = `${scrollBarWidth}px`;
+      }
+
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        document.body.style.paddingRight = originalPaddingRight;
+      };
+    }
+  }, [isAuthModalOpen]);
+
   // Handle ESC key to close modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -102,7 +121,11 @@ export default function AuthModal() {
     setGoogleLoading(true);
     const res = await signInWithGoogle();
     if (res?.error) {
-      setError(res.error);
+      if (res.error.toLowerCase().includes('provider is not enabled') || res.error.toLowerCase().includes('unsupported provider')) {
+        setError('Google Sign-In is not enabled yet in your Supabase project. Please enable the Google provider in your Supabase Dashboard under Authentication > Providers.');
+      } else {
+        setError(res.error);
+      }
       setGoogleLoading(false);
     }
   };
@@ -338,3 +361,4 @@ export default function AuthModal() {
     </div>
   );
 }
+

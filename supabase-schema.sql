@@ -169,3 +169,86 @@ WITH (security_invoker = true) AS
   FROM prompts p
   LEFT JOIN categories c ON p.category_id = c.id
   ORDER BY p.created_at DESC;
+
+
+-- ===========================
+-- USER FAVORITES & CUSTOM CATEGORY LISTS
+-- ===========================
+
+-- 1. User Favorites Table
+CREATE TABLE IF NOT EXISTS public.user_favorites (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  prompt_id UUID REFERENCES prompts(id) ON DELETE CASCADE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, prompt_id)
+);
+
+ALTER TABLE public.user_favorites ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can read own favorites" ON public.user_favorites;
+CREATE POLICY "Users can read own favorites" ON public.user_favorites
+  FOR SELECT TO authenticated
+  USING ((SELECT auth.uid()) = user_id);
+
+DROP POLICY IF EXISTS "Users can insert own favorites" ON public.user_favorites;
+CREATE POLICY "Users can insert own favorites" ON public.user_favorites
+  FOR INSERT TO authenticated
+  WITH CHECK ((SELECT auth.uid()) = user_id);
+
+DROP POLICY IF EXISTS "Users can delete own favorites" ON public.user_favorites;
+CREATE POLICY "Users can delete own favorites" ON public.user_favorites
+  FOR DELETE TO authenticated
+  USING ((SELECT auth.uid()) = user_id);
+
+-- 2. User Custom Categories Table
+CREATE TABLE IF NOT EXISTS public.user_categories (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  name TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.user_categories ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can read own categories" ON public.user_categories;
+CREATE POLICY "Users can read own categories" ON public.user_categories
+  FOR SELECT TO authenticated
+  USING ((SELECT auth.uid()) = user_id);
+
+DROP POLICY IF EXISTS "Users can insert own categories" ON public.user_categories;
+CREATE POLICY "Users can insert own categories" ON public.user_categories
+  FOR INSERT TO authenticated
+  WITH CHECK ((SELECT auth.uid()) = user_id);
+
+DROP POLICY IF EXISTS "Users can delete own categories" ON public.user_categories;
+CREATE POLICY "Users can delete own categories" ON public.user_categories
+  FOR DELETE TO authenticated
+  USING ((SELECT auth.uid()) = user_id);
+
+-- 3. Junction: User Category Prompts Table
+CREATE TABLE IF NOT EXISTS public.user_category_prompts (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  category_id UUID REFERENCES public.user_categories(id) ON DELETE CASCADE NOT NULL,
+  prompt_id UUID REFERENCES prompts(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(category_id, prompt_id)
+);
+
+ALTER TABLE public.user_category_prompts ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can read own category prompts" ON public.user_category_prompts;
+CREATE POLICY "Users can read own category prompts" ON public.user_category_prompts
+  FOR SELECT TO authenticated
+  USING ((SELECT auth.uid()) = user_id);
+
+DROP POLICY IF EXISTS "Users can insert own category prompts" ON public.user_category_prompts;
+CREATE POLICY "Users can insert own category prompts" ON public.user_category_prompts
+  FOR INSERT TO authenticated
+  WITH CHECK ((SELECT auth.uid()) = user_id);
+
+DROP POLICY IF EXISTS "Users can delete own category prompts" ON public.user_category_prompts;
+CREATE POLICY "Users can delete own category prompts" ON public.user_category_prompts
+  FOR DELETE TO authenticated
+  USING ((SELECT auth.uid()) = user_id);
